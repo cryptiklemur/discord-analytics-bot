@@ -1,6 +1,12 @@
 import Kernel from './src/Kernel';
 import mongoose from 'mongoose';
 
+const Long = mongoose.mongo.Long;
+
+String.prototype.toLong = function() {
+    return Long.fromString(this);
+};
+
 mongoose.Promise = global.Promise;
 
 global.eventsThisSession = {

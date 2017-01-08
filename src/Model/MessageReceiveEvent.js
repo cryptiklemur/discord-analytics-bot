@@ -6,8 +6,7 @@ require('mongoose-long')(mongoose);
 export const MessageReceivedEvent = new Schema(
     {
         channel:     {type: Schema.Types.Long, index: true},
-        message:     {type: Schema.Types.Long, index: true},
-        approximate: {type: Boolean, index: true, default: false}
+        message:     {type: Schema.Types.Long, index: true}
     },
     {
         collection: global.collectionName
