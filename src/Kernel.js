@@ -87,7 +87,7 @@ export default class Kernel {
                 tokens.push(this.getConfig(server).token);
             }
 
-            let data = {v: 1, t: 'event', ec: server, ea: action, el: user};
+            let data = {v: 1, t: 'event', cid: user, ec: server, ea: action, el: user};
 
             tokens.forEach(token => {
                 request.post(
