@@ -31,7 +31,7 @@ export default class Aggregator {
 
         for (let event of events) {
             try {
-                await Aggregator.upsertMessageRecievedEvent(event);
+                Aggregator.upsertMessageRecievedEvent(event);
             } catch (e) {
                 console.error(e);
             }
