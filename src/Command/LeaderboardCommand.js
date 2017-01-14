@@ -62,7 +62,7 @@ module.exports = class LeaderboardCommand {
                     name: "Current Leaderboard"
                 },
                 footer:    {
-                    text: "Data is slightly delayed | " + moment.duration((new Date()) - start).milliseconds() + 'ms'
+                    text: "Data is slightly delayed | " + moment.duration((new Date()) - start).utc().milliseconds() + 'ms'
                 },
                 type:      "rich",
                 title:     "Leaderboard for the last: 30 Days",
