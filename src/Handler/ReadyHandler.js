@@ -13,14 +13,14 @@ export default class ReadyHandler {
             console.log(`To add me to a server, visit: https://discordapp.com/api/oauth2/authorize?client_id=${this.client.user.id}&scope=bot`);
             console.log(`Currently a member of ${this.client.guilds.size} guilds`);
 
-            this.client.editStatus('online', {name: `Tracking ${this.client.guilds.size} servers`});
+            this.client.editStatus('online', {name: `Help: /help`});
         });
 
         this.client.on("messageUpdate", this.client.listeners("messageCreate")[0]);
 
-        this.client.on('guildCreate', () => {
-            this.client.editStatus('online', {name: `Tracking ${this.client.guilds.size} servers`});
-        });
+        //this.client.on('guildCreate', () => {
+        //      this.client.editStatus('online', {name: `Tracking ${this.client.guilds.size} servers`});
+        //});
 
         this.client.on('messageCreate', message => {
             if (!message.guild || !message.guild.id) {
