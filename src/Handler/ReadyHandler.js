@@ -70,7 +70,6 @@ export default class ReadyHandler {
 
         this.client.on('voiceChannelLeave', ReadyHandler.stopVoiceEvent.bind(this));
         this.client.on('voiceChannelSwitch', (member, oldChan, newChan) => {
-            console.log("Switch Event!");
             this.track("voice_switch", member.guild.id, member.id);
             this.track("voice_leave", member.guild.id, member.id);
             ReadyHandler.stopVoiceEvent(member, oldChan);
@@ -135,7 +134,7 @@ export default class ReadyHandler {
             });
 
             if (!doc || doc.length === 0) {
-                console.log("No start event!");
+                //console.log("No start event!");
                 return;
             }
         }

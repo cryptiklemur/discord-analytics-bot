@@ -1,16 +1,17 @@
 import MessageReceiveEvent from './Model/MessageReceiveEvent';
 import MessageReceiveAggregate from './Model/MessageReceiveAggregate';
 
+const AGGREGATOR_INTERVAL = 1 * 60;
+
 export default class Aggregator {
     static async aggregate() {
-        let fiveMinsAgo = new Date();
-        fiveMinsAgo.setMinutes(fiveMinsAgo.getMinutes() - 5);
+        let minsAgo = new Date();
+        minsAgo.setMinutes(minsAgo.getMinutes() - 5);
 
-        Aggregator.aggregateMessagesReceived(fiveMinsAgo);
+        Aggregator.aggregateMessagesReceived(minsAgo);
     }
 
     static async aggregateMessagesReceived(timestamp) {
-
         let events = await MessageReceiveEvent.aggregate([
             {$match: {timestamp: {$lt: timestamp}}},
             {
