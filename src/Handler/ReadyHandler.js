@@ -120,7 +120,6 @@ export default class ReadyHandler {
         }
 
         let doc, index = voiceEvents.findIndex(d => {
-            console.log(d);
             return d.guild.toString() == member.guild.id
                 && d.user.toString() == member.id
                 && d.channel.toString() == channel.id

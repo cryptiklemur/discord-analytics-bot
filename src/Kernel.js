@@ -90,43 +90,49 @@ export default class Kernel {
         }
     }
 
-    checkVoiceChannelStates() {
-        VoiceEvent.find({hasLeft: false}).then(results => {
-            if (results.length === 0) {
-                return;
-            }
+    async checkVoiceChannelStates() {
+        let results;
+        try {
+            results = await VoiceEvent.find({hasLeft: false});
+        } catch (e) {
+            console.log(e);
+            return;
+        }
 
-            results.forEach(result => {
-                try {
-                    let guild = this.client.guilds.get(result.guild.toString()), user;
-                    if (guild) {
-                        user = guild.members.get(result.user.toString());
-                        if (user && user.voiceState && user.voiceState.channelID) {
-                            if (user.voiceState.channelID != result.channel) {
-                                console.log("User in a different in voice, stopping and starting event approximately.");
-                                ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
-                                ReadyHandler.startVoiceEvent(user, guild.channels.get(user.voiceState.channelID), true);
-                                return;
-                            }
+        if (results.length === 0) {
+            return;
+        }
 
-                            if (user.voiceState.deaf || user.voiceState.selfDeaf) {
-                                console.log("User no longer in voice undeafened, stopping event approximately.");
-                                ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
-                            }
-                            return;
+        for (let result of results) {
+            try {
+                let guild = this.client.guilds.get(result.guild.toString()), user;
+                if (guild) {
+                    user = guild.members.get(result.user.toString());
+                    if (user && user.voiceState && user.voiceState.channelID) {
+                        if (user.voiceState.channelID != result.channel) {
+                            console.log("User in a different in voice, stopping and starting event approximately.");
+                            ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
+                            ReadyHandler.startVoiceEvent(user, guild.channels.get(user.voiceState.channelID), true);
+                            continue;
                         }
 
-                        console.log("User no longer in voice, stopping event approximately.");
-                        ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
-                        return;
+                        if (user.voiceState.deaf || user.voiceState.selfDeaf) {
+                            console.log("User no longer in voice undeafened, stopping event approximately.");
+                            ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
+                        }
+                        continue;
                     }
 
-                    result.remove().catch(console.error);
-                } catch (e) {
-                    console.error(e)
+                    console.log("User no longer in voice, stopping event approximately.");
+                    ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
+                    continue;
                 }
-            });
-        });
+
+                result.remove().catch(console.error);
+            } catch (e) {
+                console.error(e)
+            }
+        }
     }
 
     embedError(channel, error) {
