@@ -14,6 +14,9 @@ process.on('uncaughtException', function(err) {
     console.error(err.stack);
     process.exit(1);
 });
+process.on('unhandledRejection', (reason) => {
+    console.error('Reason: ' + reason);
+});
 
 try {
     let bot = new Kernel();

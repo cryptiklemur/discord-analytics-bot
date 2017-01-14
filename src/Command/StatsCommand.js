@@ -1,9 +1,47 @@
-import _ from 'lodash';
-import MessageReceiveEvent from '../Model/MessageReceiveEvent';
-import UserBannedEvent from '../Model/UserBannedEvent';
-import UserJoinedEvent from '../Model/UserJoinedEvent';
-import UserLeftEvent from '../Model/UserLeftEvent';
-import VoiceEvent from '../Model/VoiceEvent';
+import MessageReceiveAggregate from "../Model/MessageReceiveAggregate";
+
+export default class StatsCommand {
+    static get name() { return 'stats'; }
+
+    static get config() {
+        return {};
+    }
+
+    static async run(msg) {
+        let messagesReceived = await MessageReceiveAggregate.aggregate([{$group: {_id: "all", count: {$sum: "$count"}}}]);
+
+        msg.channel.createMessage({
+            embed: {
+                author:    {
+                    name: "Bot Stats"
+                },
+                type:      "rich",
+                timestamp: new Date(),
+                color:     0xFF9800,
+                footer:    {
+                    text: `Uptime: ${format(this.client.uptime / 1000)} | Memory Usage: ${formatSizeUnits(process.memoryUsage().heapUsed)}`
+                },
+                fields:    [
+                    {
+                        inline: true,
+                        name:   "__Servers:__",
+                        value:  this.client.guilds.size
+                    },
+                    {
+                        inline: true,
+                        name:   "__Users:__",
+                        value:  this.client.users.size + " / " + this.client.guilds.map(s => s.memberCount).reduce((a, b) => a + b)
+                    },
+                    {
+                        inline: true,
+                        name:   "__Messages Received:__",
+                        value: messagesReceived.map(x => x.count).reduce((a, b) => a + b)
+                    }
+                ]
+            }
+        }).catch(e => console.log(e.response));
+    }
+}
 
 function format(seconds) {
     function pad(s) {
@@ -26,63 +64,4 @@ function formatSizeUnits(bytes) {
     else if (bytes == 1) {bytes = bytes + ' byte';}
     else {bytes = '0 byte';}
     return bytes;
-}
-
-module.exports = class StatsCommand {
-    static get name() { return 'stats'; }
-
-    static get config() {
-        return {};
-    }
-
-    static async run(msg) {
-        let counts = {
-            messages_received: await MessageReceiveEvent.count(),
-            users_banned:      await UserBannedEvent.count(),
-            users_joined:      await UserJoinedEvent.count(),
-            users_left:        await UserLeftEvent.count(),
-            voice_events:      await VoiceEvent.count(),
-        };
-
-        let events = [{event: 'totals', value: 0}];
-        for (let eventName in counts) {
-            if (!counts.hasOwnProperty(eventName)) {
-                continue;
-            }
-
-            events[0].value += counts[eventName];
-            events.push({event: eventName, value: counts[eventName]});
-        }
-
-        msg.channel.createMessage({
-            embed: {
-                author:    {
-                    name: "Bot Stats"
-                },
-                type:      "rich",
-                timestamp: new Date(),
-                color:     0xFF9800,
-                footer: {
-                    text: `Uptime: ${format(this.client.uptime / 1000)} | Memory Usage: ${formatSizeUnits(process.memoryUsage().heapUsed)}`
-                },
-                fields:    [
-                    {
-                        inline: true,
-                        name:   "__Servers:__",
-                        value:  this.client.guilds.size
-                    },
-                    {
-                        inline: true,
-                        name:   "__Users:__",
-                        value:  this.client.users.size + " / " + this.client.guilds.map(s => s.memberCount).reduce((a, b) => a + b)
-                    },
-                    {
-                        inline: false,
-                        name:   "__Events:__",
-                        value:  events.map(x => _.capitalize(x.event.replace('_', ' ')) + ": " + x.value).join("\n")
-                    }
-                ]
-            }
-        }).catch(e => console.log(e.response));
-    }
 }
