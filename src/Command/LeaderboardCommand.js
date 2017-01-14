@@ -62,11 +62,11 @@ module.exports = class LeaderboardCommand {
                     name: "Current Leaderboard"
                 },
                 footer:    {
-                    text: "Data is slightly delayed | " + moment.duration((new Date()) - start).utc().milliseconds() + 'ms'
+                    text: "Data is slightly delayed | " + moment.duration((new Date()) - start).milliseconds() + 'ms'
                 },
                 type:      "rich",
                 title:     "Leaderboard for the last: 30 Days",
-                timestamp: new Date(),
+                timestamp: moment().utc(),
                 color:     0x00FF00,
                 fields:    users.slice(0, 25).map((x, index) => {
                     return {

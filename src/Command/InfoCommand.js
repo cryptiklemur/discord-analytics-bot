@@ -139,9 +139,9 @@ module.exports = class InfoCommand {
                 type:      "rich",
                 title:     `Information on ${usr.mention} for the last: 30 days`,
                 footer:    {
-                    text: "Data is slightly delayed | All times are in UTC | " + moment.duration((new Date()) - start).utc().milliseconds() + 'ms'
+                    text: "Data is slightly delayed | All times are in UTC | " + moment.duration((new Date()) - start).milliseconds() + 'ms'
                 },
-                timestamp: new Date(),
+                timestamp: moment().utc(),
                 color:     0x00FF00,
                 fields:    [
                     {
