@@ -57,7 +57,7 @@ module.exports = class InfoCommand {
         }
 
         if (!events || events.length === 0) {
-            msg.channel.createMessage("I can't find that user in my database!");
+            msg.channel.createMessage("I can't find that user in my database! (Events are slightly delayed)");
             return;
         }
 
@@ -94,7 +94,7 @@ module.exports = class InfoCommand {
         let days = [];
         events.forEach(x => {
             let date  = moment(x._id.timestamp).utc(),
-                day  = date.weekday(),
+                day   = date.weekday(),
                 index = days.findIndex(a => a[0] == day);
 
             if (index >= 0) {
@@ -139,7 +139,7 @@ module.exports = class InfoCommand {
                 type:      "rich",
                 title:     `Information on ${usr.mention} for the last: 30 days`,
                 footer:    {
-                    text: "All times are in UTC | " + moment.duration((new Date()) - start).milliseconds() + 'ms'
+                    text: "Data is slightly delayed | All times are in UTC | " + moment.duration((new Date()) - start).milliseconds() + 'ms'
                 },
                 timestamp: new Date(),
                 color:     0x00FF00,
@@ -156,7 +156,7 @@ module.exports = class InfoCommand {
                     }, {
                         inline: true,
                         name:   '__Messages this D/W/M:__',
-                        value: messagesToday + ' / ' + messagesThisWeek + ' / ' + messagesThisMonth + ' messages'
+                        value:  messagesToday + ' / ' + messagesThisWeek + ' / ' + messagesThisMonth + ' messages'
                     }, {
                         inline: true,
                         name:   '__Most Active Day:__',
