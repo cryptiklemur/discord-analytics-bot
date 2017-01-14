@@ -97,6 +97,7 @@ export default class Kernel {
             }
 
             results.forEach(result => {
+                console.log(result);
                 try {
                     let guild = this.client.guilds.get(result.guild.toString()), user;
                     if (guild) {
