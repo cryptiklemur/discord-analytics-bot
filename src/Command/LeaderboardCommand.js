@@ -33,7 +33,7 @@ module.exports = class LeaderboardCommand {
         let results;
         try {
             results = await MessageReceiveAggregate.aggregate([
-                {$match: {guild: guildId.toLong(), year: start.getYear(), month: start.getMonth()}},
+                {$match: {guild: guildId.toLong(), year: start.getFullYear(), month: start.getMonth()}},
                 {$group: {_id: "$user", messages: {$sum: "$count"}}},
                 {$sort: {messages: -1}}
             ]);
