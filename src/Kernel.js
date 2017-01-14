@@ -76,9 +76,6 @@ export default class Kernel {
             return;
         }
 
-        global.eventsThisSession.total++;
-        global.eventsThisSession[action]++;
-
         if (server && user) {
             let tokens = [process.env.BOT_TOKEN];
             if (this.getConfig(server).token) {

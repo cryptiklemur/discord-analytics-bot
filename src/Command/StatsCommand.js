@@ -1,4 +1,9 @@
-const _ = require('lodash');
+import _ from 'lodash';
+import MessageReceiveEvent from '../Model/MessageReceiveEvent';
+import UserBannedEvent from '../Model/UserBannedEvent';
+import UserJoinedEvent from '../Model/UserJoinedEvent';
+import UserLeftEvent from '../Model/UserLeftEvent';
+import VoiceEvent from '../Model/VoiceEvent';
 
 function format(seconds) {
     function pad(s) {
@@ -27,21 +32,26 @@ module.exports = class StatsCommand {
     static get name() { return 'stats'; }
 
     static get config() {
-        return {
-            requirements: {
-                userIDs: [process.env.BOT_OWNER]
-            }
-        };
+        return {};
     }
 
-    static run(msg) {
-        let events = [];
-        for (let eventName in global.eventsThisSession) {
-            if (!global.eventsThisSession.hasOwnProperty(eventName)) {
+    static async run(msg) {
+        let counts = {
+            messages_received: await MessageReceiveEvent.count(),
+            users_banned:      await UserBannedEvent.count(),
+            users_joined:      await UserJoinedEvent.count(),
+            users_left:        await UserLeftEvent.count(),
+            voice_events:      await VoiceEvent.count(),
+        };
+
+        let events = [{event: 'totals', value: 0}];
+        for (let eventName in counts) {
+            if (!counts.hasOwnProperty(eventName)) {
                 continue;
             }
 
-            events.push({event: eventName, value: global.eventsThisSession[eventName]});
+            events[0].value += counts[eventName];
+            events.push({event: eventName, value: counts[eventName]});
         }
 
         msg.channel.createMessage({
@@ -52,17 +62,10 @@ module.exports = class StatsCommand {
                 type:      "rich",
                 timestamp: new Date(),
                 color:     0xFF9800,
+                footer: {
+                    text: `Uptime: ${format(this.client.uptime / 1000)} | Memory Usage: ${formatSizeUnits(process.memoryUsage().heapUsed)}`
+                },
                 fields:    [
-                    {
-                        inline: true,
-                        name:   "__Uptime:__",
-                        value:  format(this.client.uptime / 1000)
-                    },
-                    {
-                        inline: true,
-                        name:   "__Memory Usage:__",
-                        value:  formatSizeUnits(process.memoryUsage().heapUsed)
-                    },
                     {
                         inline: true,
                         name:   "__Servers:__",
@@ -74,7 +77,7 @@ module.exports = class StatsCommand {
                         value:  this.client.users.size + " / " + this.client.guilds.map(s => s.memberCount).reduce((a, b) => a + b)
                     },
                     {
-                        inline: true,
+                        inline: false,
                         name:   "__Events:__",
                         value:  events.map(x => _.capitalize(x.event.replace('_', ' ')) + ": " + x.value).join("\n")
                     }

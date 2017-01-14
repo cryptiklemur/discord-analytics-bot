@@ -9,16 +9,6 @@ String.prototype.toLong = function() {
 
 mongoose.Promise = global.Promise;
 
-global.eventsThisSession = {
-    total:             0,
-    message_receive:   0,
-    user_joined:       0,
-    user_left:         0,
-    user_banned:       0,
-    user_joined_voice: 0,
-    user_left_voice:   0,
-};
-
 global.collectionName = process.env.COLLECTION_NAME ? process.env.COLLECTION_NAME : 'events';
 
 process.on('uncaughtException', function(err) {

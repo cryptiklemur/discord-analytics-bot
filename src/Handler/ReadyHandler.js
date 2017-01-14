@@ -18,6 +18,10 @@ export default class ReadyHandler {
 
         this.client.on("messageUpdate", this.client.listeners("messageCreate")[0]);
 
+        this.client.on('guildCreate', () => {
+            this.client.editStatus('online', {name: `Tracking ${this.client.guilds.size} servers`});
+        });
+
         this.client.on('messageCreate', message => {
             if (!message.guild || !message.guild.id) {
                 return;
@@ -96,7 +100,6 @@ export default class ReadyHandler {
         if (member.voiceState && (member.voiceState.deaf || member.voiceState.selfDeaf)) {
             return;
         }
-        console.log("Start Voice Event!");
 
         let event = new VoiceEvent({
             guild:       member.guild.id,
@@ -136,9 +139,6 @@ export default class ReadyHandler {
                 return;
             }
         }
-
-        console.log("Left Voice Event!");
-        console.log(doc)
 
         try {
             doc.update({
