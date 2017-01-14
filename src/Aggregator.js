@@ -30,6 +30,12 @@ export default class Aggregator {
             }
         ]);
 
+        if (!events || events.length === 0) {
+            return;
+        }
+
+        console.log("Aggregating Message Receive Events");
+
         for (let event of events) {
             try {
                 Aggregator.upsertMessageRecievedEvent(event);
