@@ -45,7 +45,7 @@ export default class Aggregator {
         }
 
         try {
-            MessageReceiveEvent.remove({timestamp: {$lt: timestamp}});
+            MessageReceiveEvent.remove({timestamp: {$lt: timestamp}}).exec();
         } catch (e) {
             console.error(e);
         }
