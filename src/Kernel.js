@@ -104,6 +104,11 @@ export default class Kernel {
         }
 
         for (let result of results) {
+            if (!result) {
+                console.log(result);
+                continue;
+            }
+
             try {
                 let guild = this.client.guilds.get(result.guild.toString()), user;
                 if (guild) {
