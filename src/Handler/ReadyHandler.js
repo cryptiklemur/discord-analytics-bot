@@ -115,11 +115,12 @@ export default class ReadyHandler {
 
     static async stopVoiceEvent(member, channel, approximate = false) {
         // If this is the AFK channel, don't track.
-        if (channel.id == member.guild.afkChannelID) {
+        if (!member.guild || channel.id == member.guild.afkChannelID) {
             return;
         }
 
         let doc, index = voiceEvents.findIndex(d => {
+            console.log(d);
             return d.guild.toString() == member.guild.id
                 && d.user.toString() == member.id
                 && d.channel.toString() == channel.id
