@@ -10,8 +10,7 @@ export const VoiceEvent = new Schema(
         duration:      {type: Number, default: 0, index: true},
         approximate:   {type: Boolean, index: true, default: false},
         leftTimestamp: {type: Date, default: null, index: true}
-    },
-    {collection: global.collectionName}
+    }
 );
 
-export default BaseEvent.discriminator('VoiceEvent', VoiceEvent, global.collectionName);
+export default BaseEvent.discriminator('VoiceEvent', VoiceEvent);

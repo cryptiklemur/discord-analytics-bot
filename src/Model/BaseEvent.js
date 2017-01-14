@@ -10,8 +10,7 @@ export default mongoose.model(
             timestamp: {type: Date, default: Date.now(), index: true}
         },
         {
-            collection: process.env.COLLECTION_NAME ? process.env.COLLECTION_NAME : 'events'
+            collection: (process.env.NODE_ENV === 'production' ? '' : 'development_') + 'events'
         }
-    ),
-    process.env.COLLECTION_NAME ? process.env.COLLECTION_NAME : 'events'
+    )
 );

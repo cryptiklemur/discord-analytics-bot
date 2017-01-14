@@ -1,4 +1,4 @@
-module.exports = class SetTokenCommand {
+export default class SetTokenCommand {
     static get name() { return 'set-token'; }
 
     static get config() {
@@ -8,7 +8,7 @@ module.exports = class SetTokenCommand {
             guildOnly:       true,
             requirements:    {
                 permissions: {
-                    administrator: true
+                    manageServer: true
                 }
             }
         };
@@ -27,6 +27,6 @@ module.exports = class SetTokenCommand {
         this.getConfig(msg.guild.id).token = args[0];
         this.saveConfig(this.config);
 
-        return "All Set!";
+        return "All Set! Your message was deleted to hide your key from the public.";
     }
 }

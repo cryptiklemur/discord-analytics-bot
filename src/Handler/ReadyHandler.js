@@ -92,7 +92,7 @@ export default class ReadyHandler {
 
     static startVoiceEvent(member, channel, approximate = false) {
         // If this is the AFK channel, don't track.
-        if (channel.id == member.guild.afkChannelID) {
+        if (!channel || channel.id == member.guild.afkChannelID) {
             return;
         }
 

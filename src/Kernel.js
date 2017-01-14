@@ -16,6 +16,9 @@ import EvalCommand from './Command/EvalCommand';
 
 import ReadyHandler from './Handler/ReadyHandler';
 import VoiceEvent from './Model/VoiceEvent';
+import Aggregator from "./Aggregator";
+
+const AGGREGATOR_INTERVAL = 1 * 60 * 60;
 
 export default class Kernel {
     constructor() {
@@ -63,11 +66,13 @@ export default class Kernel {
         this.client.on('err', console.error);
         this.client.on('error', console.error);
 
-
         process.on('SIGUSR2', () => {
             console.log("SIGUSR2");
             this.gracefulShutdown();
         });
+
+        Aggregator.aggregate();
+        setInterval(Aggregator.aggregate, AGGREGATOR_INTERVAL);
     }
 
     track(action, server, user) {

@@ -9,8 +9,6 @@ String.prototype.toLong = function() {
 
 mongoose.Promise = global.Promise;
 
-global.collectionName = process.env.COLLECTION_NAME ? process.env.COLLECTION_NAME : 'events';
-
 process.on('uncaughtException', function(err) {
     console.error((new Date).toUTCString() + ' uncaughtException:', err.message);
     console.error(err.stack);

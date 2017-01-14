@@ -3,6 +3,6 @@ import BaseEvent from './BaseEvent';
 
 require('mongoose-long')(mongoose);
 
-export const UserBannedEvent = new Schema({}, {collection: global.collectionName});
+export const UserBannedEvent = new Schema({});
 
-export default BaseEvent.discriminator('UserBannedEvent', UserBannedEvent, global.collectionName);
+export default BaseEvent.discriminator('UserBannedEvent', UserBannedEvent);

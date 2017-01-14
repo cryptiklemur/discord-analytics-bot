@@ -7,9 +7,6 @@ export const MessageReceivedEvent = new Schema(
     {
         channel:     {type: Schema.Types.Long, index: true},
         message:     {type: Schema.Types.Long, index: true}
-    },
-    {
-        collection: global.collectionName
     }
 );
 
