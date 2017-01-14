@@ -51,12 +51,13 @@ module.exports = class InfoCommand {
                 },
                 {$group: {_id: {channel: '$channel', timestamp: '$timestamp'}, messages: {$sum: "$count"}}}
             ]);
-
-            if (!events || events.length == 0) {
-                throw new Error("I can't find that user in my database!");
-            }
         } catch (e) {
             this.embedError(msg.channel, e);
+            return;
+        }
+
+        if (!events || events.length === 0) {
+            msg.channel.createMessage("I can't find that user in my database!");
             return;
         }
 
