@@ -29,10 +29,10 @@ export default class ReadyHandler {
 
             this.track("message_receive", message.guild.id, message.author.id);
             let event = new MessageReceiveEvent({
-                guild:   message.guild.id,
-                user:    message.author.id,
-                message: message.id,
-                channel: message.channel.id
+                guild:     message.guild.id,
+                user:      message.author.id,
+                message:   message.id,
+                channel:   message.channel.id
             });
 
             event.save().catch(console.error);

@@ -7,7 +7,7 @@ export default mongoose.model(
         {
             guild:     {type: Schema.Types.Long, index: true},
             user:      {type: Schema.Types.Long, index: true},
-            timestamp: {type: Date, default: Date.now(), index: true}
+            timestamp: {type: Date, default: () => Date.now(), index: true}
         },
         {
             collection: (process.env.NODE_ENV === 'production' ? '' : 'development_') + 'events'
