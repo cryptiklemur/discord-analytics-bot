@@ -65,6 +65,8 @@ export default class ReadyHandler {
             event.save().catch(console.error);
         });
 
+        return;
+
         this.client.on('voiceChannelJoin', ReadyHandler.startVoiceEvent.bind(this));
         this.client.on('voiceChannelJoin', (member, channel) => this.track("voice_join", member.guild.id, member.id));
 
