@@ -38,7 +38,7 @@ export default class Aggregator {
         }
 
         try {
-            await MessageReceiveEvent.remove({timestamp: {$lt: timestamp}});
+            MessageReceiveEvent.remove({timestamp: {$lt: timestamp}});
         } catch (e) {
             console.error(e);
         }
@@ -70,7 +70,7 @@ export default class Aggregator {
         agg.count += event.count;
 
         try {
-            await agg.save();
+            agg.save();
         } catch (e) {
             console.error(e);
         }
