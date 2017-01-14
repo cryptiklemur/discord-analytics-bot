@@ -82,16 +82,25 @@ export default class Kernel {
         }
 
         if (server && user) {
-            let tokens = [process.env.BOT_TOKEN];
+            let tokens = [process.env.BOT_ANALYTICS];
             if (this.getConfig(server).token) {
                 tokens.push(this.getConfig(server).token);
             }
 
             let data = {v: 1, t: 'event', ec: server, ea: action, el: user};
 
-            tokens.forEach(token => request.post(
-                `https://www.google-analytics.com/collect?tid=${token}&${querystring.stringify(data)}`
-            ));
+            tokens.forEach(token => {
+                request.post(
+                    `https://www.google-analytics.com/collect?tid=${token}&${querystring.stringify(data)}`,
+                    err => {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            //console.log(`TRACKED EVENT: ${action}, ${server}, ${user}`);
+                        }
+                    }
+                )
+            });
         }
     }
 
