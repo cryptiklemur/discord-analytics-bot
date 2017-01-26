@@ -1,29 +1,38 @@
-import moment from 'moment';
-import MessageReceiveAggregate from '../Model/MessageReceiveAggregate';
+import moment from "moment";
+import MessageReceiveAggregate from "../Model/MessageReceiveAggregate";
 
 module.exports = class LeaderboardCommand {
-    static get name() { return 'leaderboard'; }
-
+    static get name() {
+        return 'channel-leaderboard';
+    }
+    
     static get config() {
         return {
             guildOnly:       true,
-            description:     "View the top 25 posters on your server!",
-            fullDescription: "View the top 25 posters on your server!"
+            description:     "View the top 25 posters in this channel!",
+            fullDescription: "View the top 25 posters in this channel!"
         }
     }
-
+    
     static run(msg, args) {
         return LeaderboardCommand.getTextLeaderboard.call(this, msg);
     }
-
+    
     static async getTextLeaderboard(msg) {
         const guildId = msg.guild.id,
               start   = new Date();
-
+        
         let results;
         try {
             results = await MessageReceiveAggregate.aggregate([
-                {$match: {guild: guildId.toLong(), year: start.getFullYear(), month: start.getMonth() + 1}},
+                {
+                    $match: {
+                        guild:   guildId.toLong(),
+                        channel: msg.channel.id.toLong(),
+                        year:    start.getFullYear(),
+                        month:   start.getMonth() + 1
+                    }
+                },
                 {$group: {_id: "$user", messages: {$sum: "$count"}}},
                 {$sort: {messages: -1}}
             ]);
@@ -31,25 +40,25 @@ module.exports = class LeaderboardCommand {
             this.embedError(msg.channel, e);
             return;
         }
-
+        
         const users = results.map(x => {
             const user = this.client.users.get(x._id.toString());
             if (!user || user.bot || this.getConfig(guildId).ignoredUsers.indexOf(user.id) >= 0) {
                 return;
             }
-
+            
             return {user: user, messages: x.messages};
         }).filter(x => !!x);
-
+        
         if (users.length === 0) {
-            msg.channel.createMessage("No stats for this server. Try again later.");
+            msg.channel.createMessage("No stats for this channel. Try again later.");
             return;
         }
-
+        
         msg.channel.createMessage({
             embed: {
                 author:    {
-                    name: "Current Leaderboard"
+                    name: "Current Leaderboard for " + msg.channel.name
                 },
                 footer:    {
                     text: "Data is slightly delayed | " + moment.duration((new Date()) - start).milliseconds() + 'ms'
@@ -67,9 +76,5 @@ module.exports = class LeaderboardCommand {
                 })
             }
         }).catch(e => this.embedError(msg.channel, e));
-    }
-
-    static async getVoiceLeaderboard(msg) {
-        msg.channel.createMessage("This is currently disabled.");
     }
 };
