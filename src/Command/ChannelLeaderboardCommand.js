@@ -15,7 +15,7 @@ module.exports = class ChannelLeaderboardCommand {
     }
     
     static run(msg, args) {
-        return LeaderboardCommand.getTextLeaderboard.call(this, msg);
+        return ChannelLeaderboardCommand.getTextLeaderboard.call(this, msg);
     }
     
     static async getTextLeaderboard(msg) {
