@@ -1,7 +1,7 @@
 import moment from "moment";
 import MessageReceiveAggregate from "../Model/MessageReceiveAggregate";
 
-module.exports = class LeaderboardCommand {
+module.exports = class ChannelLeaderboardCommand {
     static get name() {
         return 'channel-leaderboard';
     }
