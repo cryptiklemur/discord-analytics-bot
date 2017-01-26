@@ -8,6 +8,7 @@ import SetTokenCommand from './Command/SetTokenCommand';
 import InfoCommand from './Command/InfoCommand';
 import IgnoreCommand from './Command/IgnoreCommand';
 import UnignoreCommand from './Command/UnignoreCommand';
+import ChannelLeaderboardCommand from './Command/ChannelLeaderboardCommand';
 import LeaderboardCommand from './Command/LeaderboardCommand';
 import StatsCommand from './Command/StatsCommand';
 import CleanCommand from './Command/CleanCommand';
@@ -54,6 +55,7 @@ export default class Kernel {
             InfoCommand,
             UnignoreCommand,
             IgnoreCommand,
+            ChannelLeaderboardCommand,
             LeaderboardCommand,
             CleanCommand
         ];
