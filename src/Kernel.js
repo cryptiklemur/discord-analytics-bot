@@ -1,22 +1,22 @@
-import fs from 'fs';
-import {CommandClient} from 'eris';
-import request from 'request';
-import mongoose from 'mongoose';
-import querystring from 'querystring';
+import fs from "fs";
+import {CommandClient} from "eris";
+import request from "request";
+import mongoose from "mongoose";
+import querystring from "querystring";
 
-import SetTokenCommand from './Command/SetTokenCommand';
-import InfoCommand from './Command/InfoCommand';
-import IgnoreCommand from './Command/IgnoreCommand';
-import UnignoreCommand from './Command/UnignoreCommand';
-import ChannelLeaderboardCommand from './Command/ChannelLeaderboardCommand';
-import LeaderboardCommand from './Command/LeaderboardCommand';
-import StatsCommand from './Command/StatsCommand';
-import CleanCommand from './Command/CleanCommand';
-import RestartCommand from './Command/RestartCommand';
-import EvalCommand from './Command/EvalCommand';
+import SetTokenCommand from "./Command/SetTokenCommand";
+import InfoCommand from "./Command/InfoCommand";
+import IgnoreCommand from "./Command/IgnoreCommand";
+import UnignoreCommand from "./Command/UnignoreCommand";
+import ChannelLeaderboardCommand from "./Command/ChannelLeaderboardCommand";
+import LeaderboardCommand from "./Command/LeaderboardCommand";
+import StatsCommand from "./Command/StatsCommand";
+import CleanCommand from "./Command/CleanCommand";
+import RestartCommand from "./Command/RestartCommand";
+import EvalCommand from "./Command/EvalCommand";
 
-import ReadyHandler from './Handler/ReadyHandler';
-import VoiceEvent from './Model/VoiceEvent';
+import ReadyHandler from "./Handler/ReadyHandler";
+import VoiceEvent from "./Model/VoiceEvent";
 import Aggregator from "./Aggregator";
 
 const AGGREGATOR_INTERVAL = 1 * 60 * 1000;
@@ -25,28 +25,30 @@ export default class Kernel {
     constructor() {
         try {
             fs.writeFileSync(__dirname + '/../config.json', '{}', {flag: 'wx'});
-        } catch (e) {}
+        } catch (e) {
+        }
         try {
             this.config = JSON.parse(fs.readFileSync(__dirname + '/../config.json'));
         } catch (e) {
             this.config = {};
         }
-
+        
         mongoose.connect(process.env.MONGO_URL);
         var db = mongoose.connection;
         db.on('error', console.error.bind(console, 'connection error:'));
-        db.once('open', function() {
+        db.once('open', function () {
             console.log("DB Connected");
         });
-
+        
         this.client = new CommandClient(process.env.BOT_TOKEN, {
             messageLimit: 5,
+            getAllUsers:  true,
         }, {
             owner:       "Aaron",
             description: "Google Analytics for your Discord Server!",
             prefix:      process.env.NODE_ENV === 'development' ? '\\' : '/'
         });
-
+        
         let cmds = [
             SetTokenCommand,
             EvalCommand,
@@ -62,35 +64,35 @@ export default class Kernel {
         for (let cmd of cmds) {
             this.client.registerCommand(cmd.name, this.wrapError.bind(this, cmd.run.bind(this)), cmd.config);
         }
-
+        
         ReadyHandler.run.call(this);
-
+        
         this.client.on('err', console.error);
         this.client.on('error', console.error);
-
+        
         process.on('SIGUSR2', () => {
             console.log("SIGUSR2");
             this.gracefulShutdown();
         });
-
+        
         Aggregator.aggregate();
         setInterval(Aggregator.aggregate, AGGREGATOR_INTERVAL);
     }
-
+    
     track(action, server, user) {
         if (!action) {
             console.log("No action!");
             return;
         }
-
+        
         if (server && user) {
             let tokens = [process.env.BOT_ANALYTICS];
             if (this.getConfig(server).token) {
                 tokens.push(this.getConfig(server).token);
             }
-
+            
             let data = {v: 1, t: 'event', cid: user, ec: server, ea: action, el: user};
-
+            
             tokens.forEach(token => {
                 request.post(
                     `https://www.google-analytics.com/collect?tid=${token}&${querystring.stringify(data)}`,
@@ -105,7 +107,7 @@ export default class Kernel {
             });
         }
     }
-
+    
     async checkVoiceChannelStates() {
         let results;
         try {
@@ -114,17 +116,17 @@ export default class Kernel {
             console.log(e);
             return;
         }
-
+        
         if (results.length === 0) {
             return;
         }
-
+        
         for (let result of results) {
             if (!result) {
                 console.log(result);
                 continue;
             }
-
+            
             try {
                 let guild = this.client.guilds.get(result.guild.toString()), user;
                 if (guild) {
@@ -136,26 +138,26 @@ export default class Kernel {
                             ReadyHandler.startVoiceEvent(user, guild.channels.get(user.voiceState.channelID), true);
                             continue;
                         }
-
+                        
                         if (user.voiceState.deaf || user.voiceState.selfDeaf) {
                             console.log("User no longer in voice undeafened, stopping event approximately.");
                             ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
                         }
                         continue;
                     }
-
+                    
                     console.log("User no longer in voice, stopping event approximately.");
                     ReadyHandler.stopVoiceEvent(user, guild.channels.get(result.channel.toString()), true);
                     continue;
                 }
-
+                
                 result.remove().catch(console.error);
             } catch (e) {
                 console.error(e)
             }
         }
     }
-
+    
     embedError(channel, error) {
         channel.createMessage({
             embed: {
@@ -169,7 +171,7 @@ export default class Kernel {
             }
         }).catch(e => console.log(e.response));
     }
-
+    
     getConfig(guildId) {
         if (!this.config[guildId]) {
             this.config[guildId] = {
@@ -178,12 +180,12 @@ export default class Kernel {
                 ignoredChannels: []
             };
         }
-
+        
         return this.config[guildId];
     }
-
+    
     wrapError(func, msg, args) {
-        (function(msg, args) {
+        (function (msg, args) {
             try {
                 func(msg, args);
             } catch (e) {
@@ -191,7 +193,7 @@ export default class Kernel {
             }
         })(msg, args);
     }
-
+    
     saveConfig() {
         try {
             fs.writeFile(
@@ -207,24 +209,24 @@ export default class Kernel {
             console.error(e);
         }
     }
-
+    
     gracefulShutdown() {
         console.log("Process killed.");
         this.client.editStatus("dnd", {name: "Restarting"});
-
+        
         setTimeout(() => {
             this.client.disconnect({reconnect: false});
             delete this.client;
             process.exit(0);
         }, 300)
     }
-
+    
     run() {
         console.log("Starting bot!");
         this.client.connect();
         setInterval(this.sendServerCount.bind(this), 60000);
     }
-
+    
     sendServerCount() {
         request({
             uri:     'https://bots.discord.pw/api/bots/264569236129579008/stats',
@@ -240,11 +242,11 @@ export default class Kernel {
                 console.log(err)
             }
         });
-
+        
         request({
-            uri:     'https://www.carbonitex.net/discord/data/botdata.php?debug=true',
-            method:  'POST',
-            json:    {
+            uri:    'https://www.carbonitex.net/discord/data/botdata.php?debug=true',
+            method: 'POST',
+            json:   {
                 key:         process.env.CARBONITE_KEY,
                 servercount: this.client.guilds.size
             }
