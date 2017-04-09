@@ -1,21 +1,39 @@
 import MessageReceiveAggregate from "../Model/MessageReceiveAggregate";
 
-export default class StatsCommand {
-    static get name() { return 'stats'; }
-
+export default class ServerCommand {
+    static get name() {
+        return 'server';
+    }
+    
     static get config() {
         return {};
     }
-
+    
     static async run(msg) {
-        let messagesReceived = await MessageReceiveAggregate.aggregate([{$group: {_id: "all", count: {$sum: "$count"}}}]);
-
-        let total = 0;
-        let events = Object.keys(this.client.stats.rawTotal).map(key => {
-            total += this.client.stats.rawTotal[key];
-            
-            return "`" + key + ": " + this.client.stats.rawTotal[key] + "`";
-        }).join(', ');
+        let messagesReceived = await MessageReceiveAggregate.aggregate([{
+            $query: {
+                $guild: msg.channel.guild.id
+            },
+            $group: {
+                _id:   "all",
+                count: {$sum: "$count"}
+            }
+        }]);
+    
+        const MessageReceiveAggregate = require('../Model/MessageReceiveAggregate').default;
+    
+        MessageReceiveAggregate.aggregate([
+            {
+                $query: {
+                    $guild: msg.channel.guild.id
+                },
+                $group: {
+                    _id:   "all",
+                    count: {$sum: "$count"}
+                }
+            }]).then(result => {
+            msg.channel.createMessage(results.map(x => x.count).reduce((a, b) => a + b))
+        });
         
         msg.channel.createMessage({
             embed: {
@@ -42,16 +60,7 @@ export default class StatsCommand {
                     {
                         inline: true,
                         name:   "__Messages Received:__",
-                        value: messagesReceived.map(x => x.count).reduce((a, b) => a + b)
-                    },
-                    {
-                        inline: true,
-                        name: "__Connections:__",
-                        value: `${this.client.stats.connects} connects, ${this.client.stats.disconnects} disconnects, ${this.client.stats.resumes} resumes`
-                    },
-                    {
-                        name:   "__Events:__",
-                        value:  events + ', `TOTAL: ' + total + '`'
+                        value:  messagesReceived.map(x => x.count).reduce((a, b) => a + b)
                     }
                 ]
             }
@@ -63,21 +72,33 @@ function format(seconds) {
     function pad(s) {
         return (s < 10 ? '0' : '') + s;
     }
-
+    
     const hours   = Math.floor(seconds / (60 * 60)),
           minutes = Math.floor(seconds % (60 * 60) / 60);
-
+    
     seconds = Math.floor(seconds % 60);
-
+    
     return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
 }
 
 function formatSizeUnits(bytes) {
-    if (bytes >= 1073741824) {bytes = (bytes / 1073741824).toFixed(2) + ' GB';}
-    else if (bytes >= 1048576) {bytes = (bytes / 1048576).toFixed(2) + ' MB';}
-    else if (bytes >= 1024) {bytes = (bytes / 1024).toFixed(2) + ' KB';}
-    else if (bytes > 1) {bytes = bytes + ' bytes';}
-    else if (bytes == 1) {bytes = bytes + ' byte';}
-    else {bytes = '0 byte';}
+    if (bytes >= 1073741824) {
+        bytes = (bytes / 1073741824).toFixed(2) + ' GB';
+    }
+    else if (bytes >= 1048576) {
+        bytes = (bytes / 1048576).toFixed(2) + ' MB';
+    }
+    else if (bytes >= 1024) {
+        bytes = (bytes / 1024).toFixed(2) + ' KB';
+    }
+    else if (bytes > 1) {
+        bytes = bytes + ' bytes';
+    }
+    else if (bytes == 1) {
+        bytes = bytes + ' byte';
+    }
+    else {
+        bytes = '0 byte';
+    }
     return bytes;
 }

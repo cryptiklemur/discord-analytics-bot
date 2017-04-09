@@ -66,9 +66,34 @@ export default class Kernel {
         }
         
         ReadyHandler.run.call(this);
+        this.client.stats = {
+            disconnects: 0,
+            connects: 0,
+            resumes: 0,
+            raw: [],
+            rawTotal: {}
+        };
+        
         
         this.client.on('err', console.error);
         this.client.on('error', console.error);
+        this.client.on('disconnect', () => this.client.stats.disconnects++);
+        this.client.on('connect', () => this.client.stats.connects++);
+        this.client.on('resume', () => this.client.stats.resumes++);
+        this.client.on('rawWS', (packet, id) => {
+            const type = packet.t || 'MISC';
+            if (!this.client.stats.raw[id]) {
+                this.client.stats.raw[id] = {};
+            }
+            if (!this.client.stats.raw[id][type]) {
+                this.client.stats.raw[id][type] = 0;
+            }
+            if (!this.client.stats.rawTotal[type]) {
+                this.client.stats.rawTotal[type] = 0;
+            }
+            
+            this.client.stats.rawTotal[type]++;
+        });
         
         process.on('SIGUSR2', () => {
             console.log("SIGUSR2");
