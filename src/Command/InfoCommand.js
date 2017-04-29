@@ -1,6 +1,8 @@
 import moment from 'moment';
-import MessageReceiveEvent from '../Model/MessageReceiveEvent';
+import Cache from "ttl";
 import MessageReceiveAggregate from '../Model/MessageReceiveAggregate';
+
+const cache = new Cache();
 
 /**
  * Outputs to the screen the following stats:
@@ -37,27 +39,32 @@ module.exports = class InfoCommand {
         if (this.getConfig(guildId).ignoredUsers.indexOf(usr.id) >= 0) {
             return "That user has no stats."
         }
-
-        let events;
-        try {
-            events = await MessageReceiveAggregate.aggregate([
-                {
-                    $match: {
-                        user:  usr.id.toLong(),
-                        guild: guildId.toLong(),
-                        year:  start.getFullYear(),
-                        month: start.getMonth() + 1
-                    }
-                },
-                {$group: {_id: {channel: '$channel', timestamp: '$timestamp'}, messages: {$sum: "$count"}}}
-            ]);
-        } catch (e) {
-            this.embedError(msg.channel, e);
-            return;
+    
+        const key = `${usr.id}.leaderboard`;
+        let events = cache.get(key);
+        if (events === undefined) {
+            try {
+                events = await MessageReceiveAggregate.aggregate([
+                    {
+                        $match: {
+                            user:  usr.id.toLong(),
+                            guild: guildId.toLong(),
+                            year:  start.getFullYear(),
+                            month: start.getMonth() + 1
+                        }
+                    },
+                    {$group: {_id: {channel: '$channel', timestamp: '$timestamp'}, messages: {$sum: "$count"}}}
+                ]);
+            } catch (e) {
+                this.embedError(msg.channel, e);
+                return;
+            }
+            
+            cache.put(key, events, 60 * 10 * 1000);
         }
 
         if (!events || events.length === 0) {
-            msg.channel.createMessage("I can't find that user in my database! (Events are slightly delayed)");
+            await msg.channel.createMessage("I can't find that user in my database! (Events are slightly delayed)");
             return;
         }
 
@@ -120,7 +127,7 @@ module.exports = class InfoCommand {
               mostActiveChannels = channels.sort((a, b) => b.messages - a.message);
 
         let mostActiveChannel;
-        if (mostActiveChannels.length == 0) {
+        if (mostActiveChannels.length === 0) {
             mostActiveChannel = "No Channel";
         } else {
             mostActiveChannel = msg.guild.channels.get(mostActiveChannels[0].id.toString());
@@ -131,7 +138,7 @@ module.exports = class InfoCommand {
             }
         }
 
-        msg.channel.createMessage({
+        await msg.channel.createMessage({
             embed: {
                 author:    {
                     name: "Analytics Bot"
