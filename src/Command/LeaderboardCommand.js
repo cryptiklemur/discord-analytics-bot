@@ -28,7 +28,7 @@ module.exports = class LeaderboardCommand {
         
         const key = `${msg.guild.id}.leaderboard`;
         let users = cache.get(key);
-        if (users === undefined) {
+        if (!users || users.length === 0) {
             let results;
             try {
                 results = await MessageReceiveAggregate.aggregate([
@@ -41,7 +41,7 @@ module.exports = class LeaderboardCommand {
                 return;
             }
             
-            const users = results.map(x => {
+            users = results.map(x => {
                 const user = this.client.users.get(x._id.toString());
                 if (!user || user.bot || this.getConfig(guildId).ignoredUsers.indexOf(user.id) >= 0) {
                     return;
