@@ -104,7 +104,7 @@ export default class Kernel {
         setInterval(Aggregator.aggregate, AGGREGATOR_INTERVAL);
     }
     
-    track(action, server, user) {
+    track(action, server, user, extra = {}) {
         if (!action) {
             console.log("No action!");
             return;
@@ -116,7 +116,7 @@ export default class Kernel {
                 tokens.push(this.getConfig(server).token);
             }
             
-            let data = {v: 1, t: 'event', cid: user, ec: server, ea: action, el: user};
+            let data = Object.assign({}, {v: 1, t: 'event', cid: user, ec: server, ea: action, el: user}, extra);
             
             tokens.forEach(token => {
                 request.post(
