@@ -120,7 +120,7 @@ export default class Kernel {
             
             tokens.forEach(token => {
                 request.post(
-                    `https://www.google-analytics.com/collect?tid=${token}&${querystring.stringify(data)}`,
+                    `https://www.google-analytics.com/collect?tid=${token}&aip=1&${querystring.stringify(data)}`,
                     err => {
                         if (err) {
                             console.log(err);
