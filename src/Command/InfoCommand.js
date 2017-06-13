@@ -144,7 +144,7 @@ module.exports = class InfoCommand {
                     name: "Analytics Bot"
                 },
                 type:      "rich",
-                title:     `Information on ${usr.mention} for the last: 30 days`,
+                title:     `Information on ${usr.username} for the last: 30 days`,
                 footer:    {
                     text: "Data is slightly delayed | All times are in UTC | " + moment.duration((new Date()) - start).milliseconds() + 'ms'
                 },
