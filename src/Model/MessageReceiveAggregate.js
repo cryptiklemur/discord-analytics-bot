@@ -16,7 +16,7 @@ export default mongoose.model(
             timestamp: {type: Date, index: true}
         },
         {
-            collection: (process.env.NODE_ENV === 'production' ? '' : 'development_') + 'message_receive_aggregate'
+            collection: 'message_receive_aggregate'
         }
     )
 );
