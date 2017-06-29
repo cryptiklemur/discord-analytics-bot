@@ -215,9 +215,9 @@ export default class Kernel {
     }
     
     wrapError(func, msg, args) {
-        (function (msg, args) {
+        (async function (msg, args) {
             try {
-                func(msg, args);
+                await func(msg, args);
             } catch (e) {
                 console.error(e);
             }
