@@ -11,6 +11,7 @@ export default class Aggregator {
         console.log(`Aggregating Message Receive Events for ${kernel.client.guilds.size} guilds`);
         
         for (let [id, guild] of kernel.client.guilds) {
+            console.log(`Starting guild: ${id}`);
             await Aggregator.aggregateMessagesReceived(guild, minsAgo);
         }
         
@@ -36,6 +37,7 @@ export default class Aggregator {
             }
         ]);
 
+        console.log(`Found ${events.length} events for ${guild.id}`);
         if (!events || events.length === 0) {
             return;
         }
