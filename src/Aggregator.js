@@ -14,10 +14,11 @@ export default class Aggregator {
         
         console.log(`Aggregating Message Receive Events for ${kernel.client.guilds.size} guilds`);
         
-        //for (let [id, guild] of kernel.client.guilds) {
-            //console.log(`Starting guild: ${id}`);
+        try {
             await Aggregator.aggregateMessagesReceived(minsAgo);
-        //}
+        } catch (e) {
+            console.error(e);
+        }
         
         // Delete user banned, user left, and user join
         UserBannedEvent.remove();
