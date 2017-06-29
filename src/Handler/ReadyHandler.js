@@ -43,30 +43,12 @@ export default class ReadyHandler {
         });
         this.client.on('guildMemberAdd', (guild, member) => {
             this.track("user_joined", guild.id, member.id);
-            let event = new UserJoinedEvent({
-                guild: guild.id,
-                user:  member.id,
-            });
-            
-            event.save().catch(console.error);
         });
         this.client.on('guildMemberRemove', (guild, member) => {
             this.track("user_left", guild.id, member.id);
-            let event = new UserLeftEvent({
-                guild: guild.id,
-                user:  member.id,
-            });
-            
-            event.save().catch(console.error);
         });
         this.client.on('guildBanAdd', (guild, member) => {
             this.track("user_banned", guild.id, member.id);
-            let event = new UserBannedEvent({
-                guild: guild.id,
-                user:  member.id,
-            });
-            
-            event.save().catch(console.error);
         });
         
         return;

@@ -1,5 +1,9 @@
-import MessageReceiveEvent from './Model/MessageReceiveEvent';
-import MessageReceiveAggregate from './Model/MessageReceiveAggregate';
+import MessageReceiveEvent from "./Model/MessageReceiveEvent";
+import UserBannedEvent from "./Model/UserBannedEvent";
+import UserLeftEvent from "./Model/UserLeftEvent";
+import UserJoinedEvent from "./Model/UserJoinedEvent";
+
+import MessageReceiveAggregate from "./Model/MessageReceiveAggregate";
 
 const AGGREGATOR_INTERVAL = 1;
 
@@ -7,20 +11,27 @@ export default class Aggregator {
     static async aggregate(kernel) {
         let minsAgo = new Date();
         minsAgo.setMinutes(minsAgo.getMinutes() - AGGREGATOR_INTERVAL);
-    
+        
         console.log(`Aggregating Message Receive Events for ${kernel.client.guilds.size} guilds`);
         
-        for (let [id, guild] of kernel.client.guilds) {
-            console.log(`Starting guild: ${id}`);
-            await Aggregator.aggregateMessagesReceived(guild, minsAgo);
-        }
+        //for (let [id, guild] of kernel.client.guilds) {
+            //console.log(`Starting guild: ${id}`);
+            await Aggregator.aggregateMessagesReceived(minsAgo);
+        //}
+        
+        // Delete user banned, user left, and user join
+        UserBannedEvent.remove();
+        UserLeftEvent.remove();
+        UserJoinedEvent.remove();
+        
+        // delete anything that has more than 500 events and hasnt been aggregated
         
         console.log("Finished aggregating");
     }
-
-    static async aggregateMessagesReceived(guild, timestamp) {
+    
+    static async aggregateMessagesReceived(timestamp) {
         let events = await MessageReceiveEvent.aggregate([
-            {$match: {guild: guild.id, timestamp: {$lt: timestamp}}},
+            {$match: {timestamp: {$lt: timestamp}}},
             {
                 $group: {
                     _id:   {
@@ -36,13 +47,13 @@ export default class Aggregator {
                 }
             }
         ]);
-
+        
         console.log(`Found ${events.length} events for ${guild.id}`);
         if (!events || events.length === 0) {
             return;
         }
-
-
+        
+        
         for (let event of events) {
             try {
                 await Aggregator.upsertMessageRecievedEvent(event);
@@ -50,14 +61,14 @@ export default class Aggregator {
                 console.error(e);
             }
         }
-
+        
         try {
             MessageReceiveEvent.remove({timestamp: {$lt: timestamp}}).exec();
         } catch (e) {
             console.error(e);
         }
     }
-
+    
     static async upsertMessageRecievedEvent(event) {
         let query = {
             year:    event._id.year,
@@ -68,21 +79,21 @@ export default class Aggregator {
             user:    event._id.user,
             channel: event._id.channel
         };
-
+        
         let agg;
         try {
             agg = await MessageReceiveAggregate.findOne(query);
         } catch (e) {
             console.error(e);
         }
-
+        
         if (!agg) {
             agg           = new MessageReceiveAggregate(query);
             agg.timestamp = Date.parse(`${query.year}-${query.month}-${query.day} ${query.hour}:00:00`);
         }
-
+        
         agg.count += event.count;
-
+        
         try {
             agg.save();
         } catch (e) {
