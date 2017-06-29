@@ -28,6 +28,7 @@ module.exports = class InfoCommand {
     }
 
     static async run(msg, args) {
+        console.log(msg);
         const guildId = msg.guild.id,
               start   = new Date();
 
