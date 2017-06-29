@@ -48,7 +48,6 @@ export default class Aggregator {
             }
         ]);
         
-        console.log(`Found ${events.length} events for ${guild.id}`);
         if (!events || events.length === 0) {
             return;
         }
