@@ -4,16 +4,18 @@ import MessageReceiveAggregate from './Model/MessageReceiveAggregate';
 const AGGREGATOR_INTERVAL = 1;
 
 export default class Aggregator {
-    static async aggregate() {
+    static async aggregate(kernel) {
         let minsAgo = new Date();
         minsAgo.setMinutes(minsAgo.getMinutes() - AGGREGATOR_INTERVAL);
 
-        Aggregator.aggregateMessagesReceived(minsAgo);
+        kernel.client.guilds.forEach(g => {
+            Aggregator.aggregateMessagesReceived(g, minsAgo);
+        })
     }
 
-    static async aggregateMessagesReceived(timestamp) {
+    static async aggregateMessagesReceived(guild, timestamp) {
         let events = await MessageReceiveEvent.aggregate([
-            {$match: {timestamp: {$lt: timestamp}}},
+            {$match: {guild: guild.id, timestamp: {$lt: timestamp}}},
             {
                 $group: {
                     _id:   {
