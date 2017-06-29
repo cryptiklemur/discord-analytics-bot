@@ -15,11 +15,17 @@ export default class Aggregator {
         console.log(`Aggregating Message Receive Events for ${kernel.client.guilds.size} guilds`);
         // Delete user banned, user left, and user join
         console.log("Deleting banned events");
-        UserBannedEvent.remove();
+        UserBannedEvent.remove({}, err => {
+            if (err) console.error(err)
+        });
         console.log("Deleting left events");
-        UserLeftEvent.remove();
+        UserLeftEvent.remove({}, err => {
+            if (err) console.error(err)
+        });
         console.log("Deleting joined events");
-        UserJoinedEvent.remove();
+        UserJoinedEvent.remove({}, err => {
+            if (err) console.error(err)
+        });
         
         try {
             await Aggregator.aggregateMessagesReceived(minsAgo);
