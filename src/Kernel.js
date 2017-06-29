@@ -100,8 +100,8 @@ export default class Kernel {
             this.gracefulShutdown();
         });
         
-        Aggregator.aggregate(this);
         setInterval(Aggregator.aggregate.bind(null, this), AGGREGATOR_INTERVAL);
+        this.client.on('ready', Aggregator.aggregate.bind(null, this));
     }
     
     track(action, server, user, extra = {}) {
