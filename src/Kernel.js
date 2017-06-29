@@ -95,6 +95,8 @@ export default class Kernel {
             this.client.stats.rawTotal[type]++;
         });
         
+        process.on('uncaughtException', console.error);
+        
         process.on('SIGUSR2', () => {
             console.log("SIGUSR2");
             this.gracefulShutdown();
@@ -217,7 +219,7 @@ export default class Kernel {
             try {
                 func(msg, args);
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
         })(msg, args);
     }
