@@ -13,19 +13,16 @@ export default class Aggregator {
         minsAgo.setMinutes(minsAgo.getMinutes() - AGGREGATOR_INTERVAL);
         
         console.log(`Aggregating Message Receive Events for ${kernel.client.guilds.size} guilds`);
+        // Delete user banned, user left, and user join
+        UserBannedEvent.remove();
+        UserLeftEvent.remove();
+        UserJoinedEvent.remove();
         
         try {
             await Aggregator.aggregateMessagesReceived(minsAgo);
         } catch (e) {
             console.error(e);
         }
-        
-        // Delete user banned, user left, and user join
-        UserBannedEvent.remove();
-        UserLeftEvent.remove();
-        UserJoinedEvent.remove();
-        
-        // delete anything that has more than 500 events and hasnt been aggregated
         
         console.log("Finished aggregating");
     }
