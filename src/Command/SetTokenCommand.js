@@ -20,16 +20,16 @@ export default class SetTokenCommand {
             return "Must only pass a Google Analytics token.";
         }
 
-        if (!msg.guild || !msg.guild.id) {
+        if (!msg.channel.guild || !msg.channel.guild.id) {
             return;
         }
 
         let message;
         if (args[0] === '--delete') {
-            this.getConfig(msg.guild.id).token = undefined;
+            this.getConfig(msg.channel.guild.id).token = undefined;
             message = await msg.channel.createMessage("All Set!");
         } else {
-            this.getConfig(msg.guild.id).token = args[0];
+            this.getConfig(msg.channel.guild.id).token = args[0];
             message = await msg.channel.createMessage("All Set! Your message was deleted to hide your key from the public.");
         }
 

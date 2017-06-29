@@ -22,10 +22,10 @@ module.exports = class LeaderboardCommand {
     }
     
     static async getTextLeaderboard(msg) {
-        const guildId = msg.guild.id,
+        const guildId = msg.channel.guild.id,
               start   = new Date();
         
-        const key = `${msg.guild.id}.leaderboard`;
+        const key = `${msg.channel.guild.id}.leaderboard`;
         let users = cache.get(key);
         if (!users || users.length === 0) {
             let results;

@@ -17,7 +17,7 @@ module.exports = class UnignoreCommand {
     }
 
     static run(msg, args) {
-        let guildId = msg.guild.id;
+        let guildId = msg.channel.guild.id;
         if (args.length === 0) {
             return "Please mention a user or channel to unignore";
         }

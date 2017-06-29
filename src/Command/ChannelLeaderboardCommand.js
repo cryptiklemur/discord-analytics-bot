@@ -19,7 +19,7 @@ module.exports = class ChannelLeaderboardCommand {
     }
     
     static async getTextLeaderboard(msg) {
-        const guildId = msg.guild.id,
+        const guildId = msg.channel.guild.id,
               start   = new Date();
         
         let results;

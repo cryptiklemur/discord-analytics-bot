@@ -28,15 +28,14 @@ module.exports = class InfoCommand {
     }
 
     static async run(msg, args) {
-        console.log(msg);
-        const guildId = msg.guild.id,
+        const guildId = msg.channel.guild.id,
               start   = new Date();
 
         if (args.length > 1) {
             return "Please mention a user to get information about.";
         }
 
-        const usr = msg.guild.members.get((msg.mentions.length > 0 ? msg.mentions[0] : msg.author).id);
+        const usr = msg.channel.guild.members.get((msg.mentions.length > 0 ? msg.mentions[0] : msg.author).id);
         if (this.getConfig(guildId).ignoredUsers.indexOf(usr.id) >= 0) {
             return "That user has no stats."
         }
@@ -131,7 +130,7 @@ module.exports = class InfoCommand {
         if (mostActiveChannels.length === 0) {
             mostActiveChannel = "No Channel";
         } else {
-            mostActiveChannel = msg.guild.channels.get(mostActiveChannels[0].id.toString());
+            mostActiveChannel = msg.channel.guild.channels.get(mostActiveChannels[0].id.toString());
             if (!mostActiveChannel) {
                 mostActiveChannel = mostActiveChannels[0].id;
             } else {
