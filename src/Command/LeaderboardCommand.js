@@ -25,7 +25,6 @@ module.exports = class LeaderboardCommand {
         const guildId = msg.guild.id,
               start   = new Date();
         
-        
         const key = `${msg.guild.id}.leaderboard`;
         let users = cache.get(key);
         if (!users || users.length === 0) {

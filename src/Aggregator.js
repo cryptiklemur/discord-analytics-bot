@@ -9,9 +9,12 @@ export default class Aggregator {
         minsAgo.setMinutes(minsAgo.getMinutes() - AGGREGATOR_INTERVAL);
     
         console.log(`Aggregating Message Receive Events for ${kernel.client.guilds.size} guilds`);
-        kernel.client.guilds.forEach(g => {
-            Aggregator.aggregateMessagesReceived(g, minsAgo);
-        })
+        
+        for (let [id, guild] of kernel.client.guilds) {
+            await Aggregator.aggregateMessagesReceived(guild, minsAgo);
+        }
+        
+        console.log("Finished aggregating");
     }
 
     static async aggregateMessagesReceived(guild, timestamp) {
@@ -40,7 +43,7 @@ export default class Aggregator {
 
         for (let event of events) {
             try {
-                Aggregator.upsertMessageRecievedEvent(event);
+                await Aggregator.upsertMessageRecievedEvent(event);
             } catch (e) {
                 console.error(e);
             }

@@ -19,7 +19,7 @@ import ReadyHandler from "./Handler/ReadyHandler";
 import VoiceEvent from "./Model/VoiceEvent";
 import Aggregator from "./Aggregator";
 
-const AGGREGATOR_INTERVAL = 1 * 60 * 1000;
+const AGGREGATOR_INTERVAL = 60 * 60 * 1000;
 
 export default class Kernel {
     constructor() {
