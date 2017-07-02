@@ -7,13 +7,15 @@ import VoiceEvent from "../Model/VoiceEvent";
 const voiceEvents = [];
 
 export default class ReadyHandler {
-    static run() {
+    static run(callback) {
         this.client.on('ready', () => {
             console.log("Bot ready!");
             console.log(`To add me to a server, visit: https://discordapp.com/api/oauth2/authorize?client_id=${this.client.user.id}&scope=bot`);
             console.log(`Currently a member of ${this.client.guilds.size} guilds`);
             
             this.client.editStatus('online', {name: `Help: /help`});
+            
+            callback();
         });
         
         this.client.on("messageUpdate", this.client.listeners("messageCreate")[0]);
@@ -23,7 +25,7 @@ export default class ReadyHandler {
         //});
         
         this.client.on('messageCreate', message => {
-            if (!message.guild || !message.guild.id) {
+            if (!message.channel.guild || !message.channel.guild.id) {
                 return;
             }
             
@@ -33,7 +35,7 @@ export default class ReadyHandler {
                 cd3: message.author.id
             });
             let event = new MessageReceiveEvent({
-                guild:   message.guild.id,
+                guild:   message.channel.guild.id,
                 user:    message.author.id,
                 message: message.id,
                 channel: message.channel.id

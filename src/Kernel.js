@@ -19,7 +19,7 @@ import ReadyHandler from "./Handler/ReadyHandler";
 import VoiceEvent from "./Model/VoiceEvent";
 import Aggregator from "./Aggregator";
 
-const AGGREGATOR_INTERVAL = 60 * 60 * 1000;
+const AGGREGATOR_INTERVAL = 60 * 1000;
 
 export default class Kernel {
     constructor() {
@@ -65,7 +65,10 @@ export default class Kernel {
             this.client.registerCommand(cmd.name, this.wrapError.bind(this, cmd.run.bind(this)), cmd.config);
         }
         
-        ReadyHandler.run.call(this);
+        ReadyHandler.run.call(this, () => {
+            Aggregator.aggregate(this);
+            setInterval(Aggregator.aggregate.bind(null, this), AGGREGATOR_INTERVAL);
+        });
         this.client.stats = {
             disconnects: 0,
             connects: 0,
@@ -100,12 +103,6 @@ export default class Kernel {
         process.on('SIGUSR2', () => {
             console.log("SIGUSR2");
             this.gracefulShutdown();
-        });
-        
-        this.client.on('ready', () => {
-            Aggregator.aggregate(this);
-            setInterval(Aggregator.aggregate.bind(null, this), AGGREGATOR_INTERVAL);
-    
         });
     }
     
