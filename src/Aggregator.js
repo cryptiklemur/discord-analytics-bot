@@ -59,12 +59,16 @@ export default class Aggregator {
         console.log(`Found ${events.length} events`);
         
         
+        let i = 0;
         for (let event of events) {
+            console.log(i);
             try {
                 await Aggregator.upsertMessageRecievedEvent(event);
             } catch (e) {
                 console.error(e);
             }
+            
+            i++;
         }
         
         try {
