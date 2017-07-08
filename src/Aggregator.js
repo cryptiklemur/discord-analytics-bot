@@ -6,10 +6,17 @@ import VoiceEvent from "./Model/VoiceEvent";
 
 import MessageReceiveAggregate from "./Model/MessageReceiveAggregate";
 
-const AGGREGATOR_INTERVAL = 1;
+const AGGREGATOR_INTERVAL = 5;
 
 export default class Aggregator {
+    static aggregating = false;
+    
     static async aggregate(kernel) {
+        if (Aggregator.aggregating) {
+            return;
+        }
+        Aggregator.aggregating = true;
+        
         let minsAgo = new Date();
         minsAgo.setMinutes(minsAgo.getMinutes() - AGGREGATOR_INTERVAL);
         
@@ -21,7 +28,8 @@ export default class Aggregator {
         } catch (e) {
             console.error(e);
         }
-        
+    
+        Aggregator.aggregating = false;
         console.log("Finished aggregating");
     }
     
@@ -47,6 +55,8 @@ export default class Aggregator {
         if (!events || events.length === 0) {
             return;
         }
+        
+        console.log(`Found ${events.length} events`);
         
         
         for (let event of events) {
